@@ -1,3 +1,7 @@
+"""
+Setup file for the IPython extension ipylatex.
+"""
+
 from __future__ import with_statement
 
 try:
@@ -26,7 +30,7 @@ setup(
     version=ipylatex.__version__,
     author=ipylatex.__author__,
     url="https://github.com/gallenmu/ipylatex",
-    py_modules=["iplatex"],
+    py_modules=["ipylatex"],
     description="IPython magics for PyLaTeX",
     long_description=long_description,
     license="BSD",
