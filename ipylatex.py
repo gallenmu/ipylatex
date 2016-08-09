@@ -29,6 +29,7 @@ from __future__ import print_function
 import sys
 import tempfile
 from os import chdir, chmod, getcwd, environ, pathsep
+from os.path import splitext
 from subprocess import call
 from shutil import copy
 from xml.dom import minidom
@@ -179,6 +180,22 @@ class IPyLaTeX(Magics):
     def _generate_document(self, doc):
         doc.generate_pdf('%s/tikz' % self.plot_dir, clean_tex=False)
 
+    def _copy_result_files(self, save):
+        for path in save:
+            _, file_extension = splitext(path)
+            if file_extension == '.jpg':
+                copy("%s/tikz%s" % (self.plot_dir, file_extension), path)
+            if file_extension == '.png':
+                copy("%s/tikz%s" % (self.plot_dir, file_extension), path)
+            if file_extension == '.tex':
+                copy("%s/tikz%s" % (self.plot_dir, file_extension), path)
+            if file_extension == '.pdf':
+                copy("%s/tikz%s" % (self.plot_dir, file_extension), path)
+            if file_extension == '.svg':
+                copy("%s/tikz%s" % (self.plot_dir, file_extension), path)
+
+
+
     @skip_doctest
     @magic_arguments()
     @argument(
@@ -186,8 +203,9 @@ class IPyLaTeX(Magics):
         help='Display size of document in pixel, "width,height". Default is "-s 400,240".'
         )
     @argument(
-        '-S', '--save', action='store',
-        help='Save a copy to "filename".'
+        '-S', '--save', action='append',
+        help='Save a copy or several copies to "filename", \
+              e.g., --save /path/save.pdf --save /path/save.tex.'
         )
 
     @needs_local_scope
@@ -249,7 +267,7 @@ class IPyLaTeX(Magics):
 
         # Copy output file if requested
         if args.save is not None:
-            copy(image_filename, args.save)
+            self._copy_result_files(args.save)
 
         for tag, disp_d in display_data:
             self._publish_display_data(source=tag, data=disp_d, metadata={'isolated' : 'true'})
