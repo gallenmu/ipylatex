@@ -1,5 +1,5 @@
 # ipylatex
 
-IPython bindings for PyLaTeX. 
+Extension to create pgfplots with LaTeX/TikZ in IPython/Jupyter notebooks.
 
 
