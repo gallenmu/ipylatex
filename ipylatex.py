@@ -225,15 +225,22 @@ class IPyLaTeX(Magics):
         else:
             code = cell
 
-        code = ' '.join(args.code) + code
+        # generate plots in a temporary directory
+        self.plot_dir = tempfile.mkdtemp(dir=getcwd()).replace('\\', '/')
+        chmod(self.plot_dir, 0o777)
+
+        # add plotting function to code
+        generator = """
+def generate_document(doc):
+    doc.generate_pdf('""" + self.plot_dir + """' + '/tikz', clean_tex=False)
+
+"""
+        code = generator  + ' '.join(args.code) + code
 
         # if there is no local namespace then default to an empty dict
         if local_ns is None:
             local_ns = {}
 
-        # generate plots in a temporary directory
-        self.plot_dir = tempfile.mkdtemp(dir=getcwd()).replace('\\', '/')
-        chmod(self.plot_dir, 0o777)
 
         if args.size is not None:
             size = args.size
@@ -245,8 +252,10 @@ class IPyLaTeX(Magics):
         key = 'PyLaTeX.Tikz'
         display_data = []
 
+
         # Execute PyLaTeX code
-        exec(code)
+        ns = {}
+        exec code in self.shell.user_ns, ns
 
         self._convert_pdf_to_svg(self.plot_dir)
         self._convert_pdf_to_jpg(self.plot_dir)
